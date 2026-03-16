@@ -10,6 +10,7 @@ dependencies = [
     "djangorestframework>=3.16.1",
     "ipdb>=0.13.13",
     "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
     "pytest-django>=4.12.0",
     "pytest-selenium>=4.1.0",
 ]

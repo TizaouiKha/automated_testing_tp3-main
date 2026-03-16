@@ -33,9 +33,10 @@ def test_user_can_create_form_with_question(selenium, live_server, user):
     # The page starts with one question row pre-filled by JS
     selenium.find_element(By.NAME, "question_label").send_keys("What is your name?")
 
+    current_url = selenium.current_url
     selenium.find_element(By.CSS_SELECTOR, "button[type=submit]").click()
 
-    WebDriverWait(selenium, 5).until(EC.url_contains("/forms/"))
+    WebDriverWait(selenium, 5).until(EC.url_changes(current_url))
 
     # ── Then: form and question exist in the database ──────────────────
     form = Form.objects.get(title="My First Form")
@@ -63,8 +64,9 @@ def test_alice_can_create_private_form(selenium, live_server, user):
     selenium.find_element(By.NAME, "question_label").send_keys("Secret question")
     selenium.find_element(By.ID, "id_is_private").click()
     selenium.find_element(By.ID, "id_access_token").send_keys("bob@example.com")
+    current_url = selenium.current_url
     selenium.find_element(By.CSS_SELECTOR, "button[type=submit]").click()
-    WebDriverWait(selenium, 5).until(EC.url_contains("/forms/"))
+    WebDriverWait(selenium, 5).until(EC.url_changes(current_url))
 
     # ── Then: form is private with bob's email as access token ─────────
     form = Form.objects.get(title="Alice Private Form")
