@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create a form</title>
+  <link rel="stylesheet" href="{% static 'core/core.css' %}">
+</head>
+
+<body>
+  <div class="card">
+    <h1>Create a form</h1>
+    <form method="post" id="create-form">
+      {% csrf_token %}
+
+      <label for="id_title">Form title</label>
+      <input type="text" id="id_title" name="title" placeholder="e.g. Contact form" />
+
+      <hr />
+      <h2>Questions</h2>
+
+      <div id="questions-container"></div>
+
+      <button type="button" class="add-btn" id="add-question">+ Add a question</button>
+      <button type="submit" class="submit-btn">Create form</button>
+    </form>
+  </div>
+
+  <script>
+    const TYPES = [
+      { value: "text",  label: "Text" },
+      { value: "tel",   label: "Phone number" },
+      { value: "email", label: "Email" },
+    ];
+
+    const container = document.getElementById("questions-container");
+
+    function addQuestionRow() {
+      const row = document.createElement("div");
+      row.className = "question-row";
+
+      const typeOptions = TYPES.map(t =>
+        `<option value="${t.value}">${t.label}</option>`
+      ).join("");
+
+      row.innerHTML = `
+        <div class="fields">
+          <div>
+            <label>Question</label>
+            <input type="text" name="question_label" placeholder="e.g. Your name" />
+          </div>
+          <div>
+            <label>Type</label>
+            <select name="question_type">${typeOptions}</select>
+          </div>
+        </div>
+        <button type="button" class="remove-btn" title="Remove">✕</button>
+      `;
+
+      row.querySelector(".remove-btn").addEventListener("click", () => row.remove());
+      container.appendChild(row);
+    }
+
+    document.getElementById("add-question").addEventListener("click", addQuestionRow);
+
+    // Start with one empty row
+    addQuestionRow();
+  </script>
+</body>
+</html>

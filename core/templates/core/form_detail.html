@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ form.title }}</title>
+  <link rel="stylesheet" href="{% static 'core/core.css' %}">
+</head>
+<body>
+  <div class="form-card">
+    <h1>{{ form.title }}</h1>
+
+    <form method="post" novalidate id="main-form">
+      {% csrf_token %}
+
+      {% for question in questions %}
+      <div class="question-block">
+        <label for="question_{{ question.id }}">
+          {{ question.label }}
+          {% if question.is_required %}<span class="required-star" aria-hidden="true">*</span>{% endif %}
+        </label>
+
+        {% if question.question_type == "textarea" %}
+          <textarea
+            id="question_{{ question.id }}"
+            name="question_{{ question.id }}"
+            {% if question.is_required %}data-required="true"{% endif %}
+            aria-describedby="error_{{ question.id }}"
+          >{{ submitted_data|default:'' }}</textarea>
+        {% else %}
+          <input
+            type="{{ question.question_type }}"
+            id="question_{{ question.id }}"
+            name="question_{{ question.id }}"
+            value="{{ submitted_data|default:'' }}"
+            {% if question.is_required %}data-required="true"{% endif %}
+            aria-describedby="error_{{ question.id }}"
+          />
+        {% endif %}
+
+        <span
+          class="error-message{% if errors and question.id|stringformat:'s' in errors|stringformat:'s' %} visible{% endif %}"
+          id="error_{{ question.id }}"
+          role="alert"
+          aria-live="polite"
+        >
+          {% if errors %}{{ errors|default_if_none:'' }}{% endif %}Mandatory field
+        </span>
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="submit-btn">Submit</button>
+    </form>
+  </div>
+
+  <script src="{% static 'core/js/validation.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", initRequiredFieldValidation);
+  </script>
+</body>
+</html>
