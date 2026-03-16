@@ -15,7 +15,15 @@ def create_form(request):
             while Form.objects.filter(slug=slug).exists():
                 slug = f"{base_slug}-{counter}"
                 counter += 1
-            form = Form.objects.create(title=title, slug=slug, is_active=True)
+            is_private = request.POST.get("is_private") == "on"
+            access_token = request.POST.get("access_token", "").strip()
+            form = Form.objects.create(
+                title=title,
+                slug=slug,
+                is_active=True,
+                is_private=is_private,
+                access_token=access_token,
+            )
 
             # Questions are submitted as parallel lists: question_label[], question_type[]
             labels = request.POST.getlist("question_label")
