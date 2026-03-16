@@ -6,6 +6,8 @@ class Form(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
     is_active = models.BooleanField(default=True)
+    is_private = models.BooleanField(default=False)
+    access_token = models.CharField(max_length=255, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -17,6 +19,7 @@ class Question(models.Model):
         ("text", "Text"),
         ("textarea", "Textarea"),
         ("email", "Email"),
+        ("phone_number", "Phone Number"),
     ]
 
     form = models.ForeignKey(Form, on_delete=models.CASCADE, related_name="questions")

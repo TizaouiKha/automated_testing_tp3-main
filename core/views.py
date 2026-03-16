@@ -37,6 +37,12 @@ def create_form(request):
 
 def form_detail(request, slug):
     form = get_object_or_404(Form, slug=slug, is_active=True)
+
+    if form.is_private:
+        token = request.GET.get("token", "")
+        if token != form.access_token:
+            return render(request, "core/form_detail.html", {"access_denied": True})
+
     questions = form.questions.all()
 
     if request.method == "POST":

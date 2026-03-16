@@ -9,6 +9,9 @@
 </head>
 <body>
   <div class="form-card">
+    {% if access_denied %}
+      <h1>Access denied</h1>
+    {% else %}
     <h1>{{ form.title }}</h1>
 
     <form method="post" novalidate id="main-form">
@@ -30,28 +33,28 @@
           >{{ submitted_data|default:'' }}</textarea>
         {% else %}
           <input
-            type="{{ question.question_type }}"
+            type="{% if question.question_type == 'phone_number' %}text{% else %}{{ question.question_type }}{% endif %}"
             id="question_{{ question.id }}"
             name="question_{{ question.id }}"
             value="{{ submitted_data|default:'' }}"
+            data-type="{{ question.question_type }}"
             {% if question.is_required %}data-required="true"{% endif %}
             aria-describedby="error_{{ question.id }}"
           />
         {% endif %}
 
         <span
-          class="error-message{% if errors and question.id|stringformat:'s' in errors|stringformat:'s' %} visible{% endif %}"
+          class="error-message"
           id="error_{{ question.id }}"
           role="alert"
           aria-live="polite"
-        >
-          {% if errors %}{{ errors|default_if_none:'' }}{% endif %}Mandatory field
-        </span>
+        ></span>
       </div>
       {% endfor %}
 
       <button type="submit" class="submit-btn">Submit</button>
     </form>
+    {% endif %}
   </div>
 
   <script src="{% static 'core/js/validation.js' %}"></script>
