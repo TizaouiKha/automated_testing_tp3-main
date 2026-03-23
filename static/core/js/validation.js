@@ -23,6 +23,20 @@ function isValidPhoneNumber(text) {
 
 
 /**
+ * Returns true if the field value is valid according to its type.
+ *
+ * @param {HTMLElement} field
+ * @returns {boolean}
+ */
+function isFieldValid(field) {
+  if (field.type === "email") return isValidEmail(field.value);
+  if (field.dataset.type === "phone_number") return isValidPhoneNumber(field.value);
+  if (field.dataset.required === "true") return isFilled(field.value);
+  return true;
+}
+
+
+/**
  * Returns null if the field is valid, or an error message string if not.
  *
  * @param {HTMLElement} field
@@ -88,5 +102,5 @@ function isValidEmail(text) {
 
 // Allow both browser usage and Node.js/Jest imports
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { isFilled, isValidEmail, isValidPhoneNumber };
+  module.exports = { isFilled, isValidEmail, isValidPhoneNumber, isFieldValid, getErrorMessage };
 }

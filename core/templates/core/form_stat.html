@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><title>Stats – {{ form.title }}</title></head>
+<body>
+  <h1>{{ form.title }} – Statistics</h1>
+  <p>Total responses: <strong>{{ response_count }}</strong></p>
+
+  {% for stat in stats %}
+  <section>
+    <h2>{{ stat.question.label }}</h2>
+    <ul>
+      {% for answer in stat.answers %}
+      <li>{{ answer.value }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+</body>
+</html>

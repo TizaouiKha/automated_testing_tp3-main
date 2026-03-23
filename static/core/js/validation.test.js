@@ -1,4 +1,4 @@
-const { isFilled, isValidEmail, isValidPhoneNumber } = require("./validation");
+const { isFilled, isValidEmail, isValidPhoneNumber, isFieldValid, getErrorMessage } = require("./validation");
 
 describe("isFilled", () => {
   test("returns false for an empty string", () => {
@@ -37,6 +37,62 @@ describe("isValidEmail", () => {
 
   test("returns true for email with subdomain", () => {
     expect(isValidEmail("user@mail.example.com")).toBe(true);
+  });
+});
+
+describe("isFieldValid", () => {
+  test("returns true for a valid email field", () => {
+    expect(isFieldValid({ type: "email", value: "alice@example.com", dataset: {} })).toBe(true);
+  });
+
+  test("returns false for an invalid email field", () => {
+    expect(isFieldValid({ type: "email", value: "bob", dataset: {} })).toBe(false);
+  });
+
+  test("returns true for a valid phone_number field", () => {
+    expect(isFieldValid({ type: "text", value: "+33 06-12-34-56-78", dataset: { type: "phone_number", required: "true" } })).toBe(true);
+  });
+
+  test("returns false for an invalid phone_number field", () => {
+    expect(isFieldValid({ type: "text", value: "abc", dataset: { type: "phone_number", required: "true" } })).toBe(false);
+  });
+
+  test("returns true for a filled required field", () => {
+    expect(isFieldValid({ type: "text", value: "Alice", dataset: { required: "true" } })).toBe(true);
+  });
+
+  test("returns false for an empty required field", () => {
+    expect(isFieldValid({ type: "text", value: "", dataset: { required: "true" } })).toBe(false);
+  });
+
+  test("returns true for an optional empty field", () => {
+    expect(isFieldValid({ type: "text", value: "", dataset: {} })).toBe(true);
+  });
+});
+
+describe("getErrorMessage", () => {
+  test("returns 'Invalid email address' for invalid email", () => {
+    expect(getErrorMessage({ type: "email", value: "bob", dataset: {} })).toBe("Invalid email address");
+  });
+
+  test("returns null for valid email", () => {
+    expect(getErrorMessage({ type: "email", value: "alice@example.com", dataset: {} })).toBeNull();
+  });
+
+  test("returns 'Invalid phone number' for invalid phone", () => {
+    expect(getErrorMessage({ type: "text", value: "abc", dataset: { type: "phone_number" } })).toBe("Invalid phone number");
+  });
+
+  test("returns null for valid phone", () => {
+    expect(getErrorMessage({ type: "text", value: "06-12-34-56-78", dataset: { type: "phone_number" } })).toBeNull();
+  });
+
+  test("returns 'Mandatory field' for empty required field", () => {
+    expect(getErrorMessage({ type: "text", value: "", dataset: { required: "true" } })).toBe("Mandatory field");
+  });
+
+  test("returns null for filled required field", () => {
+    expect(getErrorMessage({ type: "text", value: "Alice", dataset: { required: "true" } })).toBeNull();
   });
 });
 

@@ -12,9 +12,12 @@ from core.models import Form, Question
 # ---------------------------------------------------------------------------
 
 class FormPage:
-    def __init__(self, selenium, live_server, form):
+    def __init__(self, selenium, live_server, form, token=None):
         self.selenium = selenium
-        self.selenium.get(f"{live_server.url}/forms/{form.slug}/")
+        url = f"{live_server.url}/forms/{form.slug}/"
+        if token:
+            url += f"?token={token}"
+        self.selenium.get(url)
 
     def get_input(self, question):
         return self.selenium.find_element(By.ID, f"question_{question.id}")
@@ -37,6 +40,10 @@ class FormPage:
         error = self.get_error(question)
         WebDriverWait(self.selenium, 3).until(EC.invisibility_of_element(error))
         assert not error.is_displayed()
+
+    def is_access_denied(self):
+        body = self.selenium.find_element(By.TAG_NAME, "body")
+        return "access denied" in body.text.lower()
 
 
 # ---------------------------------------------------------------------------
@@ -181,16 +188,16 @@ def test_private_form__ok(selenium, live_server, db):
         is_private=True,
         access_token="secret-token",
     )
-    Question.objects.create(
+    question = Question.objects.create(
         form=form,
         label="What is your secret?",
         question_type="text",
         is_required=True,
         order=1,
     )
-    selenium.get(f"{live_server.url}/forms/{form.slug}/?token=secret-token")
-    input_field = selenium.find_element(By.ID, f"question_{form.questions.first().id}")
-    assert input_field.is_displayed()
+    page = FormPage(selenium, live_server, form, token="secret-token")
+    assert not page.is_access_denied()
+    assert page.get_input(question).is_displayed()
 
 
 def test_private_form__denied(selenium, live_server, db):
@@ -206,6 +213,5 @@ def test_private_form__denied(selenium, live_server, db):
         is_private=True,
         access_token="secret-token",
     )
-    selenium.get(f"{live_server.url}/forms/{form.slug}/?token=wrong-token")
-    body = selenium.find_element(By.TAG_NAME, "body")
-    assert "access denied" in body.text.lower()
+    page = FormPage(selenium, live_server, form, token="wrong-token")
+    assert page.is_access_denied()

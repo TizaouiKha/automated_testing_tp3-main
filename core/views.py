@@ -90,3 +90,17 @@ def form_detail(request, slug):
 def form_success(request, slug):
     form = get_object_or_404(Form, slug=slug)
     return render(request, "core/form_success.html", {"form": form})
+
+
+def form_stat(request, slug):
+    form = get_object_or_404(Form, slug=slug, is_active=True)
+    response_count = form.responses.count()
+    stats = [
+        {"question": q, "answers": Answer.objects.filter(question=q)}
+        for q in form.questions.all()
+    ]
+    return render(request, "core/form_stat.html", {
+        "form": form,
+        "response_count": response_count,
+        "stats": stats,
+    })
